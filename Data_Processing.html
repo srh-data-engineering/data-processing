@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Processing — SRH Data Engineering 1</title>
+<style>
+:root {
+  --srh-orange: #c8390a;
+  --srh-orange-light: #fff0eb;
+  --bg: #f8f9fa;
+  --surface: #ffffff;
+  --border: #e0e0e0;
+  --text: #1a1a2e;
+  --muted: #666;
+  --green: #1b6b3a; --green-light: #eaf5ee;
+  --blue: #1a4f8a; --blue-light: #e8f0fb;
+  --purple: #5b2d8e; --purple-light: #f2eafa;
+  --teal: #0d6e6e; --teal-light: #e4f5f5;
+  --yellow: #7a5c00; --yellow-light: #fff9e0;
+  --red: #9b1c1c; --red-light: #fdeaea;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+a{color:var(--srh-orange);text-decoration:none}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#9e2200 0%,var(--srh-orange) 60%,#e05020 100%);color:#fff;padding:3.5rem 2rem 3rem;text-align:center}
+.hero h1{font-size:2.6rem;font-weight:800;letter-spacing:-0.5px;margin-bottom:.4rem}
+.hero p{font-size:1.1rem;opacity:.88}
+.hero-tags{margin-top:1.2rem;display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap}
+.hero-tag{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:.25rem .9rem;font-size:.82rem;font-weight:600}
+
+/* LAYOUT */
+.wrapper{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:230px 1fr;gap:2rem;padding:2rem 1.5rem 4rem;align-items:start}
+@media(max-width:860px){.wrapper{grid-template-columns:1fr}.sidebar{display:none}}
+
+/* SIDEBAR */
+.sidebar{position:sticky;top:1.5rem}
+.sidebar nav{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;font-size:.85rem}
+.sidebar nav h3{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.6rem}
+.sidebar nav a{display:block;padding:.38rem .6rem;border-radius:6px;color:var(--text);transition:all .2s;border-left:3px solid transparent;margin-bottom:.15rem}
+.sidebar nav a:hover{background:var(--srh-orange-light);color:var(--srh-orange)}
+.sidebar nav a.active{background:var(--srh-orange-light);color:var(--srh-orange);border-left-color:var(--srh-orange);font-weight:600}
+
+/* MAIN */
+main section{margin-bottom:3.5rem}
+
+/* SECTION TITLE */
+.section-title{display:flex;align-items:center;gap:.7rem;font-size:1.5rem;font-weight:700;padding-bottom:.6rem;border-bottom:3px solid var(--srh-orange);margin-bottom:1.5rem;color:var(--text)}
+.st-num{background:var(--srh-orange);color:#fff;border-radius:6px;padding:.12rem .55rem;font-size:.9rem;font-weight:800;min-width:1.8rem;text-align:center}
+
+/* PROSE */
+p{margin-bottom:1rem;color:#333}
+ul,ol{margin:0 0 1rem 1.4rem}
+ul li,ol li{margin-bottom:.35rem}
+h3{font-size:1.1rem;font-weight:700;margin:1.4rem 0 .5rem;color:var(--text)}
+h4{font-size:.95rem;font-weight:700;margin:1rem 0 .35rem;color:var(--muted)}
+
+/* CALLOUT */
+.callout{border-left:4px solid;border-radius:0 8px 8px 0;padding:.8rem 1rem;margin:1rem 0;font-size:.93rem}
+.callout.orange{border-color:var(--srh-orange);background:var(--srh-orange-light);color:#7a2000}
+.callout.green{border-color:var(--green);background:var(--green-light);color:var(--green)}
+.callout.blue{border-color:var(--blue);background:var(--blue-light);color:var(--blue)}
+.callout.purple{border-color:var(--purple);background:var(--purple-light);color:var(--purple)}
+.callout.teal{border-color:var(--teal);background:var(--teal-light);color:var(--teal)}
+.callout.yellow{border-color:var(--yellow);background:var(--yellow-light);color:var(--yellow)}
+.callout.red{border-color:var(--red);background:var(--red-light);color:var(--red)}
+.callout strong{font-weight:700}
+
+/* CARDS */
+.card-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1rem 0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.1rem;border-top:4px solid}
+.card.blue{border-top-color:var(--blue)}.card.green{border-top-color:var(--green)}.card.teal{border-top-color:var(--teal)}.card.purple{border-top-color:var(--purple)}.card.orange{border-top-color:var(--srh-orange)}.card.red{border-top-color:var(--red)}
+.card h4{margin-top:0;font-size:.95rem}
+.card p{font-size:.88rem;margin:0;color:var(--muted)}
+
+/* COMPARE TABLE */
+.compare-wrapper{overflow-x:auto;margin:1rem 0}
+table.compare{width:100%;border-collapse:collapse;font-size:.9rem}
+table.compare th{background:var(--srh-orange);color:#fff;padding:.6rem .9rem;text-align:left}
+table.compare td{padding:.55rem .9rem;border-bottom:1px solid var(--border)}
+table.compare tr:nth-child(even) td{background:#f9f9f9}
+table.compare tr:hover td{background:var(--srh-orange-light)}
+
+/* DIAGRAM CONTAINER */
+.diagram-container{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:1.2rem 0}
+.diagram-container h3{margin-top:0;font-size:1rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem}
+
+/* DIAG BUTTONS */
+.diag-controls{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
+.diag-btn{border:1.5px solid var(--border);background:var(--surface);color:var(--text);padding:.35rem .85rem;border-radius:20px;font-size:.85rem;cursor:pointer;transition:all .2s;font-family:inherit}
+.diag-btn:hover{border-color:var(--srh-orange);color:var(--srh-orange)}
+.diag-btn.active{background:var(--srh-orange);color:#fff;border-color:var(--srh-orange)}
+.diag-btn.nav-btn{font-weight:700;padding:.35rem .7rem}
+
+/* PIPELINE DIAGRAM */
+.pipeline-flow{display:flex;align-items:center;gap:0;overflow-x:auto;padding:.5rem 0 1rem;min-height:90px}
+.pipe-box{flex-shrink:0;min-width:120px;padding:.7rem .9rem;border-radius:8px;text-align:center;font-size:.82rem;font-weight:600;border:2px solid;transition:all .3s;cursor:pointer}
+.pipe-box.active{background:var(--srh-orange);border-color:var(--srh-orange);color:#fff;transform:translateY(-3px);box-shadow:0 4px 12px rgba(200,57,10,.3)}
+.pipe-box.inactive{background:#f0f0f0;border-color:#ccc;color:#aaa}
+.pipe-arrow{flex-shrink:0;font-size:1.3rem;color:#bbb;padding:0 .3rem;user-select:none}
+.pipe-desc{background:var(--srh-orange-light);border-left:4px solid var(--srh-orange);border-radius:0 8px 8px 0;padding:.9rem 1.1rem;font-size:.92rem;min-height:60px;transition:opacity .3s}
+
+/* ETL/ELT TOGGLE DIAGRAM */
+.etl-elt-diagram{padding:1rem 0}
+.etl-flow{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+.etl-box{border-radius:8px;padding:.7rem 1rem;font-size:.85rem;font-weight:600;border:2px solid;text-align:center;min-width:140px;transition:all .3s}
+.etl-box.highlight{background:var(--srh-orange);border-color:var(--srh-orange);color:#fff;box-shadow:0 3px 10px rgba(200,57,10,.25)}
+.etl-box.normal{background:var(--blue-light);border-color:var(--blue);color:var(--blue)}
+.etl-box.dw{background:var(--green-light);border-color:var(--green);color:var(--green)}
+.etl-arrow{font-size:1.4rem;color:#aaa;font-weight:700}
+.etl-label{font-size:.78rem;color:var(--muted);margin-top:.3rem;text-align:center}
+.etl-badges{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.badge{font-size:.8rem;padding:.25rem .7rem;border-radius:12px;font-weight:600}
+.badge.pro{background:var(--green-light);color:var(--green)}
+.badge.con{background:var(--red-light);color:var(--red)}
+
+/* WINDOW DIAGRAM */
+.stream-container{position:relative;overflow:hidden;margin:1.5rem 0}
+.stream-row{display:flex;gap:4px;padding:0 0 2.5rem;position:relative}
+.stream-cell{width:38px;height:38px;border-radius:5px;background:#e91e8c;color:#fff;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;flex-shrink:0;position:relative;z-index:2}
+.brackets-layer{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+.bracket{position:absolute;border:3px solid;border-bottom:none;border-radius:4px 4px 0 0;top:48px;height:16px}
+.window-desc{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:.5rem}
+.window-desc .sql-block{background:#1e1e2e;border-radius:6px;padding:.8rem 1rem;font-family:monospace;font-size:.82rem;color:#cdd6f4;overflow-x:auto;margin-top:.6rem;white-space:pre}
+.window-props{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.window-prop{font-size:.8rem;padding:.2rem .6rem;border-radius:12px;border:1px solid;font-weight:600}
+
+/* CODE BLOCKS */
+.code-block{background:#1e1e2e;border-radius:10px;padding:1.2rem 1.4rem;overflow-x:auto;margin:1rem 0}
+.code-block pre{font-family:'Consolas','Fira Code',monospace;font-size:.83rem;line-height:1.6;color:#cdd6f4;white-space:pre}
+.kw{color:#c8390a;font-weight:600}
+.str{color:#a6e3a1}
+.fn{color:#89dceb}
+.cm{color:#6c7086;font-style:italic}
+.tp{color:#cba6f7}
+.nb{color:#fab387}
+
+/* TERM GRID */
+.term-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;margin:1rem 0}
+.term-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.1rem;border-left:4px solid}
+.term-card.blue{border-left-color:var(--blue)}.term-card.green{border-left-color:var(--green)}.term-card.teal{border-left-color:var(--teal)}.term-card.purple{border-left-color:var(--purple)}.term-card.orange{border-left-color:var(--srh-orange)}.term-card.yellow{border-left-color:var(--yellow)}.term-card.red{border-left-color:var(--red)}
+.term-card h4{font-size:.93rem;margin:0 0 .4rem;font-weight:700}
+.term-card p{font-size:.85rem;color:var(--muted);margin:0}
+
+/* GLOSSARY */
+.glossary-grid{columns:2;column-gap:2rem;margin:1rem 0}
+@media(max-width:600px){.glossary-grid{columns:1}}
+.glossary-item{break-inside:avoid;margin-bottom:1rem;padding:.7rem .9rem;background:var(--surface);border:1px solid var(--border);border-radius:8px}
+.glossary-item dt{font-weight:700;font-size:.9rem;color:var(--srh-orange);margin-bottom:.2rem}
+.glossary-item dd{font-size:.85rem;color:var(--muted);margin:0}
+
+/* LAMBDA DIAGRAM */
+.lambda-diagram{display:grid;grid-template-columns:120px 1fr 1fr 120px;gap:1rem;align-items:center;padding:.5rem 0;overflow-x:auto}
+.lambda-src,.lambda-serve{display:flex;align-items:center;justify-content:center}
+.lambda-layer{border-radius:10px;padding:1rem;border:2px solid}
+.lambda-layer.batch{background:var(--blue-light);border-color:var(--blue);color:var(--blue)}
+.lambda-layer.speed{background:var(--red-light);border-color:var(--red);color:var(--red)}
+.lambda-layer.serve{background:var(--green-light);border-color:var(--green);color:var(--green);min-height:120px;display:flex;flex-direction:column;justify-content:center}
+.lambda-layer h4{font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem}
+.lambda-layer ul{font-size:.82rem;padding-left:1rem}
+.lambda-src-box{background:var(--srh-orange-light);border:2px dashed var(--srh-orange);border-radius:8px;padding:.7rem;text-align:center;font-size:.83rem;font-weight:600;color:var(--srh-orange)}
+.lambda-arrows{display:flex;flex-direction:column;gap:1rem;align-items:center;justify-content:center;font-size:1.5rem;color:#bbb}
+@media(max-width:700px){.lambda-diagram{grid-template-columns:1fr}}
+
+/* TWO COLUMNS */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin:1rem 0}
+@media(max-width:600px){.two-col{grid-template-columns:1fr}}
+
+/* FOOTER */
+footer{text-align:center;padding:2rem 1rem;color:var(--muted);font-size:.82rem;border-top:1px solid var(--border);background:var(--surface);margin-top:2rem}
+footer strong{color:var(--srh-orange)}
+
+/* ── HANDS-ON LAB ── */
+.phase-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.6rem 1.8rem;margin-bottom:1.8rem;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.phase-header{display:flex;align-items:center;gap:.9rem;margin-bottom:1rem}
+.phase-num{width:38px;height:38px;border-radius:50%;background:var(--srh-orange);color:#fff;font-weight:800;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.phase-num.prereq{background:var(--blue)}
+.phase-num.done{background:var(--green)}
+.phase-title{font-size:1.1rem;font-weight:700;color:var(--text)}
+.phase-subtitle{font-size:.8rem;color:var(--muted);margin-top:.15rem}
+.verify-block{background:#0d1117;border-radius:10px;padding:1rem 1.4rem;margin:.8rem 0;font-family:'Consolas','Courier New',monospace;font-size:.82rem;line-height:1.8;color:#e6edf3;overflow-x:auto}
+.verify-block .vb-label{display:inline-block;background:rgba(255,255,255,.08);color:#7ee787;font-size:.68rem;letter-spacing:1px;border-radius:4px;padding:.1rem .5rem;margin-bottom:.6rem;font-weight:600}
+.verify-block .vb-cmd{color:#79c0ff}
+.verify-block .vb-out{color:#7ee787}
+.verify-block .vb-comment{color:#8b949e;font-style:italic}
+.phase-steps{counter-reset:pstep;list-style:none;padding:0;margin:.8rem 0}
+.phase-steps li{counter-increment:pstep;display:flex;gap:.8rem;align-items:flex-start;margin-bottom:.9rem;font-size:.88rem;color:#333}
+.phase-steps li::before{content:counter(pstep);min-width:24px;height:24px;border-radius:50%;background:var(--srh-orange-light);color:var(--srh-orange);border:1.5px solid var(--srh-orange);font-weight:700;font-size:.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.1rem}
+.expected-box{background:var(--green-light);border-left:4px solid var(--green);border-radius:8px;padding:.9rem 1.2rem;margin:.8rem 0;font-size:.87rem}
+.expected-box .eb-label{font-size:.68rem;letter-spacing:1px;text-transform:uppercase;color:var(--green);font-weight:700;margin-bottom:.35rem}
+.lab-summary-table{width:100%;border-collapse:collapse;font-size:.86rem;margin:1rem 0}
+.lab-summary-table th{padding:.75rem 1rem;background:var(--srh-orange-light);color:var(--srh-orange);border-bottom:2px solid var(--srh-orange);text-align:left;font-weight:700}
+.lab-summary-table td{padding:.65rem 1rem;border-bottom:1px solid var(--border);color:#333}
+.lab-summary-table tr:last-child td{border-bottom:none}
+.lab-summary-table tr:nth-child(even) td{background:#f9f9f9}
+.lab-summary-table .slide-ref{font-size:.75rem;background:var(--srh-orange-light);color:var(--srh-orange);border-radius:4px;padding:.1rem .5rem;font-weight:700;white-space:nowrap}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Data Processing</h1>
+  <p>Batch &amp; Stream Processing · ETL/ELT Pipelines · Lambda Architecture · Processing Frameworks</p>
+  <div class="hero-tags">
+    <span class="hero-tag">Batch Processing</span>
+    <span class="hero-tag">Stream Processing</span>
+    <span class="hero-tag">ETL &amp; ELT</span>
+    <span class="hero-tag">Apache Spark</span>
+    <span class="hero-tag">Apache Flink</span>
+    <span class="hero-tag">Lambda Architecture</span>
+    <span class="hero-tag" style="background:rgba(255,255,255,.25);border-color:rgba(255,255,255,.5)">⚙ Prerequisites</span>
+    <span class="hero-tag" style="background:rgba(255,255,255,.25);border-color:rgba(255,255,255,.5)">🧪 Hands-On Lab</span>
+  </div>
+</div>
+
+<div class="wrapper">
+  <aside class="sidebar">
+    <nav>
+      <h3>Sections</h3>
+      <a href="#s1">1 · Foundations</a>
+      <a href="#s2">2 · Batch Processing</a>
+      <a href="#s3">3 · Stream Processing</a>
+      <a href="#s4">4 · Spark vs Flink</a>
+      <a href="#s5">5 · Lambda Architecture</a>
+      <a href="#s6">6 · Cloud Platforms</a>
+      <a href="#s7">7 · ETL Process</a>
+      <a href="#s8">8 · ELT Process</a>
+      <a href="#s9">9 · ETL Tools</a>
+      <a href="#s10">10 · Key Concepts</a>
+      <a href="#s11">11 · Glossary</a>
+    </nav>
+    <nav style="margin-top:1rem">
+      <h3>Lab</h3>
+      <a href="#prerequisites">⚙ Prerequisites</a>
+      <a href="#hands-on-lab">🧪 Hands-On Lab</a>
+      <a href="#lab-phase2" style="padding-left:1.4rem;font-size:.82rem">↳ Phase 2 — Batch ETL</a>
+      <a href="#lab-phase3" style="padding-left:1.4rem;font-size:.82rem">↳ Phase 3 — Stream Windows</a>
+      <a href="#lab-phase4" style="padding-left:1.4rem;font-size:.82rem">↳ Phase 4 — ELT Pipeline</a>
+      <a href="#lab-final" style="padding-left:1.4rem;font-size:.82rem">↳ Final Deliverable</a>
+    </nav>
+  </aside>
+
+  <main>
+
+    <!-- SECTION 1: FOUNDATIONS -->
+    <section id="s1">
+      <h2 class="section-title"><span class="st-num">1</span> Foundations — Big Data Systems</h2>
+
+      <p>Modern data systems are built around a five-stage pipeline that takes raw data from diverse sources through acquisition, storage, and analysis to actionable insights. The architecture differs significantly between traditional data warehouse stacks and contemporary big data ecosystems.</p>
+
+      <div class="diagram-container">
+        <h3>Big Data Pipeline — Interactive Walkthrough</h3>
+        <div class="diag-controls" id="pipeCtrl">
+          <button class="diag-btn nav-btn" onclick="pipeNav(-1)">← Prev</button>
+          <button class="diag-btn" onclick="pipeApply(0)">1 Sources</button>
+          <button class="diag-btn" onclick="pipeApply(1)">2 Acquire</button>
+          <button class="diag-btn" onclick="pipeApply(2)">3 Store</button>
+          <button class="diag-btn" onclick="pipeApply(3)">4 Analyze</button>
+          <button class="diag-btn" onclick="pipeApply(4)">5 Report</button>
+          <button class="diag-btn nav-btn" onclick="pipeNav(1)">Next →</button>
+        </div>
+        <div class="pipeline-flow" id="pipeFlow">
+          <div class="pipe-box inactive" data-idx="0">Data<br>Sources</div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-box inactive" data-idx="1">Data<br>Acquisition</div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-box inactive" data-idx="2">Data<br>Storage</div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-box inactive" data-idx="3">Data<br>Analysis</div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-box inactive" data-idx="4">Reporting &amp;<br>Visualization</div>
+        </div>
+        <div class="pipe-desc" id="pipeDesc">Click a stage above to explore it.</div>
+      </div>
+
+      <div class="two-col">
+        <div class="card blue">
+          <h4>Traditional Stack</h4>
+          <p>ERP / CRM / OLAP → <strong>ETL</strong> → Data Warehouse → BI Analysis → Reports &amp; Dashboards</p>
+        </div>
+        <div class="card teal">
+          <h4>Big Data Stack</h4>
+          <p>Social / IoT / Web → <strong>Sqoop / Kafka / Spark</strong> → HDFS / Cassandra / HBase → Hive / Spark / Impala → Tableau</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: BATCH PROCESSING -->
+    <section id="s2">
+      <h2 class="section-title"><span class="st-num">2</span> Batch Processing</h2>
+
+      <p>Batch processing collects and processes <strong>large volumes of historic data</strong> at scheduled intervals. Jobs run offline, results are not immediately visible, but re-execution is always possible — making it suitable for complex transformations over terabytes of stable data.</p>
+
+      <div class="callout blue">
+        <strong>Key trait:</strong> Runtime ranges from minutes to hours or even days. The dataset is bounded — you know its size upfront.
+      </div>
+
+      <h3>Example Batch Data Flow</h3>
+      <div class="compare-wrapper">
+        <table class="compare">
+          <tr><th>Stage</th><th>Examples</th><th>Role</th></tr>
+          <tr><td>Source Systems</td><td>CRM, ERP, Webserver Logs, CSV, JSON, DB Tables</td><td>Raw data origin</td></tr>
+          <tr><td>Data Lake (ETL)</td><td>Hadoop HDFS</td><td>Store raw ingested data at scale</td></tr>
+          <tr><td>Data Warehouse (ETL)</td><td>PostgreSQL, Oracle, MS SQL Server, DB2</td><td>Structured analytical store</td></tr>
+          <tr><td>Downstream (ETL)</td><td>DataMart (PostgreSQL), API, Web App DB (MongoDB)</td><td>Serve domain-specific queries</td></tr>
+          <tr><td>Consumers</td><td>Analysts, End-Users, Web Apps</td><td>Decision making &amp; applications</td></tr>
+        </table>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <h3>Distributed Storage</h3>
+          <div class="card-row">
+            <div class="card blue"><h4>Hadoop HDFS</h4><p>Fault-tolerant distributed file system; primary batch storage layer</p></div>
+            <div class="card teal"><h4>Apache Cassandra</h4><p>Wide-column NoSQL; high write throughput, tunable consistency</p></div>
+            <div class="card green"><h4>Redis</h4><p>In-memory key-value store; used for caching computed results</p></div>
+            <div class="card purple"><h4>MongoDB</h4><p>Document store; flexible schema for semi-structured output data</p></div>
+          </div>
+        </div>
+        <div>
+          <h3>Distributed Processing</h3>
+          <div class="card-row">
+            <div class="card orange"><h4>Hadoop MapReduce</h4><p>Disk-based map+reduce; high reliability, lower performance</p></div>
+            <div class="card blue"><h4>Apache Spark</h4><p>In-memory DAG execution; 10–100× faster than MapReduce</p></div>
+            <div class="card teal"><h4>Apache Storm</h4><p>Low-latency stream &amp; micro-batch topology processing</p></div>
+            <div class="card green"><h4>Apache Flink</h4><p>Native stream engine; also supports bounded (batch) processing</p></div>
+          </div>
+        </div>
+      </div>
+
+      <h3>MapReduce vs Spark</h3>
+      <div class="compare-wrapper">
+        <table class="compare">
+          <tr><th></th><th>Hadoop MapReduce</th><th>Apache Spark</th></tr>
+          <tr><td>Intermediate storage</td><td>Writes to disk after every step</td><td>Keeps data in RAM (RDDs/DataFrames)</td></tr>
+          <tr><td>Performance</td><td>Slower (I/O bound)</td><td>10–100× faster (memory bound)</td></tr>
+          <tr><td>Reliability</td><td>High — disk checkpoints survive failures</td><td>Lower — lost partitions must recompute</td></tr>
+          <tr><td>Best for</td><td>Reliability-critical ETL jobs</td><td>Iterative ML, interactive analytics</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 3: STREAM PROCESSING -->
+    <section id="s3">
+      <h2 class="section-title"><span class="st-num">3</span> Stream Processing</h2>
+
+      <p>Stream processing handles <strong>live, unbounded event streams</strong> in real-time or near-real-time. Unlike batch, the dataset is never fully available — events arrive continuously and must be processed as they come. Re-execution of past events is generally "impossible" without a replay mechanism like Kafka offsets.</p>
+
+      <div class="callout orange">
+        <strong>Key trait:</strong> Runtime is real-time or near-real-time (milliseconds to seconds). The dataset is unbounded — you never know when it ends.
+      </div>
+
+      <h3>Example Stream Data Flow</h3>
+      <div class="card-row">
+        <div class="card blue"><h4>1. Collect</h4><p>Kafka Topic or Flume ingests events from producers (sensors, apps, users)</p></div>
+        <div class="card teal"><h4>2. Process</h4><p>Spark Streaming or Flink applies transformations, aggregations, windowing</p></div>
+        <div class="card green"><h4>3. Store</h4><p>Results land in MapR-DB, HBase, or Cassandra for low-latency access</p></div>
+        <div class="card purple"><h4>4. Analyze</h4><p>Spark SQL, Apache Drill, or JSON APIs serve queries over live results</p></div>
+      </div>
+
+      <h3>Message Broker / Queue Pattern</h3>
+      <div class="compare-wrapper">
+        <table class="compare">
+          <tr><th>Role</th><th>Description</th><th>Examples</th></tr>
+          <tr><td>Producer</td><td>Publishes events to named queues/topics</td><td>IoT sensors, web apps, microservices</td></tr>
+          <tr><td>Broker</td><td>Buffers and routes messages; decouples producers from consumers</td><td>Apache Kafka, RabbitMQ</td></tr>
+          <tr><td>Consumer</td><td>Subscribes to queues and processes events</td><td>Apache Spark, Flink, Flume</td></tr>
+        </table>
+      </div>
+
+      <div class="callout teal">
+        <strong>Kafka's strength:</strong> Topics are append-only, durable logs. Consumers track their own offset, enabling replay and multiple independent consumers reading the same stream.
+      </div>
+
+      <h3>Stream Processing Windows — Interactive Explorer</h3>
+      <div class="diagram-container">
+        <h3>Window Types</h3>
+        <div class="diag-controls">
+          <button class="diag-btn active" onclick="winSelect('tumbling',this)">Tumbling</button>
+          <button class="diag-btn" onclick="winSelect('hopping',this)">Hopping</button>
+          <button class="diag-btn" onclick="winSelect('sliding',this)">Sliding</button>
+          <button class="diag-btn" onclick="winSelect('session',this)">Session</button>
+        </div>
+        <div class="stream-container">
+          <div style="font-size:.8rem;color:var(--muted);margin-bottom:.5rem">Event stream:</div>
+          <div class="stream-row" id="streamRow">
+            <!-- cells injected by JS -->
+          </div>
+        </div>
+        <div class="window-desc" id="winDesc"></div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: SPARK VS FLINK -->
+    <section id="s4">
+      <h2 class="section-title"><span class="st-num">4</span> Spark vs Flink</h2>
+
+      <p>Spark and Flink are the two dominant distributed processing frameworks. They take fundamentally different approaches: Spark is a batch engine that emulates streaming via micro-batches; Flink is a streaming engine that treats batch as a bounded stream.</p>
+
+      <div class="compare-wrapper">
+        <table class="compare">
+          <tr><th>Dimension</th><th>Apache Spark</th><th>Apache Flink</th></tr>
+          <tr><td>Primary model</td><td>Batch framework emulating streams</td><td>Stream framework emulating batch</td></tr>
+          <tr><td>Stream processing</td><td>Micro-batches (cuts stream into small time windows)</td><td>Processes each event individually as it arrives</td></tr>
+          <tr><td>Batch processing</td><td>Native, highly optimized</td><td>Bounded stream (batch = finite stream)</td></tr>
+          <tr><td>Latency</td><td>Several seconds</td><td>Milliseconds to seconds</td></tr>
+          <tr><td>Maturity</td><td>High — large ecosystem, massive community</td><td>Medium — growing ecosystem &amp; community</td></tr>
+          <tr><td>Use when</td><td>Reliability &gt; latency</td><td>Latency &gt; reliability</td></tr>
+        </table>
+      </div>
+
+      <div class="two-col">
+        <div class="callout blue">
+          <strong>Choose Spark when:</strong> You need a proven, well-supported platform; you have complex ML pipelines; you can tolerate a few seconds of latency; or your team has existing Spark expertise.
+        </div>
+        <div class="callout teal">
+          <strong>Choose Flink when:</strong> You need true event-time processing with sub-second latency; you are building fraud detection, real-time recommendations, or financial tick processing.
+        </div>
+      </div>
+
+      <h3>Batch vs Stream — Key Differences</h3>
+      <div class="compare-wrapper">
+        <table class="compare">
+          <tr><th></th><th>Batch Processing</th><th>Stream Processing</th></tr>
+          <tr><td>Kind of data</td><td>Large, historic, bounded</td><td>Volatile, live, unbounded stream</td></tr>
+          <tr><td>Runtime</td><td>Minutes, hours, days</td><td>Real-time / near-real-time</td></tr>
+          <tr><td>Re-Execution</td><td>Possible — just re-run the job</td><td>"Impossible" — stream doesn't pause</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 5: LAMBDA ARCHITECTURE -->
+    <section id="s5">
+      <h2 class="section-title"><span class="st-num">5</span> Lambda Architecture</h2>
+
+      <p>Lambda Architecture solves the tension between batch accuracy and streaming speed by running <strong>both pipelines in parallel</strong> and merging their outputs in a serving layer. A single streaming source (e.g. Kafka) fans out to two layers simultaneously.</p>
+
+      <div class="diagram-container">
+        <h3>Lambda Architecture — Layer View</h3>
+        <div style="display:grid;grid-template-columns:auto 1fr 1fr auto;gap:1rem;align-items:stretch;overflow-x:auto;padding:.5rem 0">
+          <div style="display:flex;align-items:center">
+            <div class="lambda-src-box">Streaming<br>Source<br><small style="font-weight:400">(e.g. Kafka)</small></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:1rem">
+            <div class="lambda-layer batch">
+              <h4>Batch Layer</h4>
+              <ul>
+                <li>Immutable Master Data Sink</li>
+                <li>e.g. Hadoop HDFS</li>
+                <li>→ Batch Processing (MapReduce)</li>
+                <li>→ Batch Views (Hive)</li>
+              </ul>
+            </div>
+            <div class="lambda-layer speed">
+              <h4>Stream (Speed) Layer</h4>
+              <ul>
+                <li>Low-latency processing</li>
+                <li>e.g. Spark, Flink, Storm</li>
+                <li>→ Real-Time Views (Cassandra)</li>
+              </ul>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center">
+            <div class="lambda-layer serve" style="width:100%">
+              <h4>Serving Layer</h4>
+              <ul>
+                <li>Merges Batch + Real-Time Views</li>
+                <li>Low-latency query responses</li>
+                <li>Serves analysts, data scientists</li>
+                <li>Serves apps (Website, API)</li>
+              </ul>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.5rem;align-items:center;justify-content:center">
+            <div style="font-size:.8rem;color:var(--muted);text-align:center">👤 Analyst<br>👤 Data Scientist<br>🌐 Web App<br>🔗 API</div>
+          </div>
+        </div>
+        <div class="callout yellow" style="margin-top:1rem">
+          <strong>Trade-off:</strong> Lambda is powerful but complex — you maintain two separate codebases (batch + stream) for the same logic. The <em>Kappa Architecture</em> simplifies this by using only a streaming layer, treating historical reprocessing as a large replay.
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card blue">
+          <h4>Batch Layer Characteristics</h4>
+          <p>Immutable, append-only data sink. High latency (hours to days). Provides accurate, complete historical views. Fault-tolerant and replayable.</p>
+        </div>
+        <div class="card red">
+          <h4>Speed Layer Characteristics</h4>
+          <p>Low-latency, approximate views. Compensates for batch layer's high latency. Only covers recent data not yet in batch views. Discarded once batch catches up.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: CLOUD PLATFORMS -->
+    <section id="s6">
+      <h2 class="section-title"><span class="st-num">6</span> Big Data Pipelines on Cloud</h2>
+
+      <p>All three major cloud providers offer fully-managed services that map to every stage of the big data pipeline. Teams can build production-grade data systems without managing physical infrastructure — only the data engineering logic differs between platforms.</p>
+
+      <div class="compare-wrapper">
+        <table class="compare">
+          <tr>
+            <th>Pipeline Stage</th>
+            <th>AWS</th>
+            <th>Microsoft Azure</th>
+            <th>Google Cloud (GCP)</th>
+          </tr>
+          <tr>
+            <td><strong>Ingestion</strong></td>
+            <td>Kinesis Streams / Firehose, AWS IoT, Lambda</td>
+            <td>Event Hub, Azure IoT Hub, Azure Function</td>
+            <td>Pub/Sub, Cloud IoT, Cloud Function</td>
+          </tr>
+          <tr>
+            <td><strong>Data Lake</strong></td>
+            <td>S3, Glacier</td>
+            <td>Azure Data Lake Store (ADLS)</td>
+            <td>Cloud Storage</td>
+          </tr>
+          <tr>
+            <td><strong>Prep &amp; Compute</strong></td>
+            <td>Glue ETL, EMR, Kinesis Analytics, SageMaker</td>
+            <td>Data Factory, Stream Analytics, Azure ML, Synapse</td>
+            <td>DataPrep, DataProc, DataFlow, AutoML</td>
+          </tr>
+          <tr>
+            <td><strong>Data Warehouse</strong></td>
+            <td>Redshift, RDS, DynamoDB, Elasticsearch</td>
+            <td>Synapse Analytics, Cosmos DB, Azure SQL</td>
+            <td>BigQuery, Cloud SQL, Bigtable, Cloud Datastore</td>
+          </tr>
+          <tr>
+            <td><strong>Presentation</strong></td>
+            <td>QuickSight, SageMaker Studio (EDA)</td>
+            <td>Power BI, Azure ML Designer / Studio</td>
+            <td>Looker Studio, Datalab, Colab (EDA)</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="card-row">
+        <div class="card orange">
+          <h4>Amazon Web Services</h4>
+          <p>Largest service catalog. <strong>Kinesis</strong> for event streaming, <strong>Glue</strong> for serverless ETL, <strong>EMR</strong> for managed Spark/Hadoop clusters, <strong>Redshift</strong> for columnar data warehousing, <strong>S3</strong> as the universal data lake.</p>
+        </div>
+        <div class="card blue">
+          <h4>Microsoft Azure</h4>
+          <p>Deep enterprise integration (AD, Office 365). <strong>Data Factory</strong> for pipeline orchestration, <strong>Synapse Analytics</strong> unifies DW + Spark in one workspace, <strong>Event Hub</strong> for high-throughput event ingestion, <strong>Power BI</strong> for visualization.</p>
+        </div>
+        <div class="card green">
+          <h4>Google Cloud Platform</h4>
+          <p>Analytics and ML leadership. <strong>BigQuery</strong> as a serverless, petabyte-scale DW, <strong>Dataflow</strong> (Apache Beam) for unified batch/stream processing, <strong>Pub/Sub</strong> for global event streaming, <strong>Looker Studio</strong> for BI.</p>
+        </div>
+      </div>
+
+      <div class="callout teal">
+        <strong>Key takeaway:</strong> The five-stage pipeline concept (ingest → store → process → warehouse → visualize) is <em>identical</em> across all clouds. Service names differ, but the architectural pattern and data engineering principles are universal. Understanding the pattern means you can work on any cloud.
+      </div>
+
+      <h3>Mapping Hadoop Ecosystem → Cloud Services</h3>
+      <div class="compare-wrapper">
+        <table class="compare">
+          <tr><th>On-Premises / Hadoop</th><th>AWS Equivalent</th><th>Azure Equivalent</th><th>GCP Equivalent</th></tr>
+          <tr><td>Kafka (ingestion)</td><td>Kinesis Streams</td><td>Event Hub</td><td>Pub/Sub</td></tr>
+          <tr><td>HDFS (data lake)</td><td>S3</td><td>ADLS Gen 2</td><td>Cloud Storage</td></tr>
+          <tr><td>Spark / Flink</td><td>EMR</td><td>Synapse Spark / HDInsight</td><td>Dataproc / Dataflow</td></tr>
+          <tr><td>Hive / Impala (SQL)</td><td>Athena / Redshift</td><td>Synapse SQL</td><td>BigQuery</td></tr>
+          <tr><td>Tableau / BI tool</td><td>QuickSight</td><td>Power BI</td><td>Looker Studio</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 7: ETL PROCESS -->
+    <section id="s7">
+      <h2 class="section-title"><span class="st-num">7</span> The ETL Process</h2>
+
+      <p><strong>ETL (Extract, Transform, Load)</strong> is the foundational pattern for data warehousing. Data is extracted from heterogeneous source systems, transformed on a dedicated staging server outside the data warehouse, and only clean, structured data is loaded into the target.</p>
+
+      <div class="callout orange">
+        <strong>Key invariant:</strong> In ETL, the data warehouse contains <em>only transformed data</em>. Raw data never enters the warehouse — transformation happens externally on a staging server.
+      </div>
+
+      <div class="card-row">
+        <div class="card blue">
+          <h4>1. Extract</h4>
+          <p>Pull data from source systems: relational databases (SQL queries), flat files (CSV, JSON, XML), REST/SOAP APIs, web scraping, streaming sources.</p>
+        </div>
+        <div class="card orange">
+          <h4>2. Transform (Staging)</h4>
+          <p>Apply business rules, schema normalization, cleaning, deduplication, enrichment — all on an external <strong>staging server</strong>, not inside the DW.</p>
+        </div>
+        <div class="card green">
+          <h4>3. Load</h4>
+          <p>Write only transformed, validated data into the target: Hadoop HDFS, Hive, Relational DB, Data Warehouse, Data Mart, or reporting systems.</p>
+        </div>
+      </div>
+
+      <h3>Common Transformation Operations</h3>
+      <div class="compare-wrapper">
+        <table class="compare">
+          <tr><th>Operation</th><th>Description</th><th>Example</th></tr>
+          <tr><td>Filtering</td><td>Remove unwanted rows</td><td>Keep only bookings from 2024</td></tr>
+          <tr><td>Mapping</td><td>Rename or cast field types</td><td><code>country_code</code> → <code>country_name</code></td></tr>
+          <tr><td>Aggregation</td><td>GROUP BY, COUNT, SUM, AVG</td><td>Daily booking totals by country</td></tr>
+          <tr><td>Joining</td><td>Combine tables on a key</td><td>bookings JOIN countries_code</td></tr>
+          <tr><td>Deduplication</td><td>Remove duplicate records</td><td>DISTINCT on user_id + date</td></tr>
+          <tr><td>Validation</td><td>Check constraints, handle nulls</td><td>Reject rows with null email</td></tr>
+          <tr><td>Enrichment</td><td>Add computed fields</td><td>Derive age bucket from DOB</td></tr>
+        </table>
+      </div>
+
+      <h3>Transform Example — Bookings Aggregation</h3>
+      <p>Source tables: <code>bookings</code> (id, email, country_code, platform, user_id, listing_id, created_at) + <code>countries_code</code> (country_code, country_name)</p>
+      <p>Target table: <code>bookings_daily</code> (date_d, country_name, platform, total)</p>
+
+      <div class="code-block"><pre><span class="cm">-- SQL transformation on staging server</span>
+<span class="kw">SELECT</span>
+    <span class="fn">DATE</span>(b.created_at)   <span class="kw">AS</span> date_d,
+    c.country_name,
+    b.platform,
+    <span class="fn">COUNT</span>(*)             <span class="kw">AS</span> total
+<span class="kw">FROM</span> bookings b
+<span class="kw">JOIN</span> countries_code c <span class="kw">ON</span> b.country_code = c.country_code
+<span class="kw">GROUP BY</span> <span class="fn">DATE</span>(b.created_at), c.country_name, b.platform;</pre></div>
+    </section>
+
+    <!-- SECTION 8: ELT PROCESS -->
+    <section id="s8">
+      <h2 class="section-title"><span class="st-num">8</span> ELT Process &amp; ETL vs ELT</h2>
+
+      <p><strong>ELT (Extract, Load, Transform)</strong> flips the classic order: raw data is loaded directly into the data warehouse first, then transformed in-place using SQL. This approach is enabled by the compute power of modern cloud data warehouses (Snowflake, BigQuery, Redshift).</p>
+
+      <div class="callout green">
+        <strong>Key invariant:</strong> In ELT, the data warehouse contains <em>both raw and transformed data</em>. No staging server required — transformation happens inside the warehouse via SQL.
+      </div>
+
+      <h3>ETL vs ELT — Toggle Diagram</h3>
+      <div class="diagram-container">
+        <h3>Mode Comparison</h3>
+        <div class="diag-controls">
+          <button class="diag-btn active" id="etlBtn" onclick="switchMode('etl')">ETL Mode</button>
+          <button class="diag-btn" id="eltBtn" onclick="switchMode('elt')">ELT Mode</button>
+        </div>
+        <div id="etlDiagram" class="etl-elt-diagram">
+          <div class="etl-flow">
+            <div class="etl-box normal">
+              <div>Sources</div>
+              <div class="etl-label">CRM, ERP, CSV, APIs</div>
+            </div>
+            <div class="etl-arrow">→</div>
+            <div class="etl-box highlight">
+              <div>Staging Server</div>
+              <div class="etl-label">Extract &amp; Transform here</div>
+            </div>
+            <div class="etl-arrow">→</div>
+            <div class="etl-box dw">
+              <div>Data Warehouse</div>
+              <div class="etl-label">Only clean data enters</div>
+            </div>
+          </div>
+          <div class="callout orange"><strong>Staging server:</strong> Transformation happens externally. Raw data never enters the warehouse. Business logic lives in ETL pipelines (code/scripts).</div>
+          <div class="etl-badges">
+            <span class="badge pro">✓ GDPR/HIPAA compliant — PII masked before DW</span>
+            <span class="badge pro">✓ Pre-structured OLAP — faster analytics</span>
+            <span class="badge pro">✓ Engineers control transformation logic</span>
+            <span class="badge con">✗ Requires dedicated staging infrastructure</span>
+            <span class="badge con">✗ Schema changes are expensive to propagate</span>
+          </div>
+        </div>
+        <div id="eltDiagram" class="etl-elt-diagram" style="display:none">
+          <div class="etl-flow">
+            <div class="etl-box normal">
+              <div>Sources</div>
+              <div class="etl-label">CRM, ERP, CSV, APIs</div>
+            </div>
+            <div class="etl-arrow">→</div>
+            <div class="etl-box highlight">
+              <div>Data Warehouse</div>
+              <div class="etl-label">Raw data loaded directly here</div>
+            </div>
+            <div class="etl-arrow">→</div>
+            <div class="etl-box" style="background:var(--purple-light);border-color:var(--purple);color:var(--purple)">
+              <div>Transform in-place</div>
+              <div class="etl-label">SQL inside the warehouse</div>
+            </div>
+          </div>
+          <div class="callout green"><strong>No staging server:</strong> Raw data loads immediately. Transformation is SQL written inside the warehouse. Analysts can own their own transforms.</div>
+          <div class="etl-badges">
+            <span class="badge pro">✓ No staging infrastructure needed</span>
+            <span class="badge pro">✓ Analysts write SQL transforms independently</span>
+            <span class="badge pro">✓ Schema flexibility — raw data always available</span>
+            <span class="badge con">✗ Sensitive data briefly visible raw in DW logs</span>
+            <span class="badge con">✗ GDPR/HIPAA risk — PII enters warehouse unmasked</span>
+            <span class="badge con">✗ Not ideal for pre-structured OLAP performance</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>ETL vs ELT — Detailed Comparison</h3>
+      <div class="compare-wrapper">
+        <table class="compare">
+          <tr><th>Dimension</th><th>ETL</th><th>ELT</th></tr>
+          <tr><td>Transform location</td><td>Staging server (outside DW)</td><td>Inside data warehouse</td></tr>
+          <tr><td>DW contents</td><td>Only clean, transformed data</td><td>Both raw and transformed data</td></tr>
+          <tr><td>Who transforms</td><td>Data engineers (code/scripts)</td><td>Analysts (SQL)</td></tr>
+          <tr><td>Compliance (GDPR)</td><td>Better — PII masked before DW</td><td>Riskier — raw PII in DW logs</td></tr>
+          <tr><td>Schema flexibility</td><td>Lower — schema defined upfront</td><td>Higher — raw data available always</td></tr>
+          <tr><td>Infrastructure</td><td>Needs staging server</td><td>No staging needed (use DW compute)</td></tr>
+          <tr><td>Best for</td><td>Pre-structured OLAP, compliance-heavy</td><td>Modern cloud DWs, analyst-driven orgs</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 9: ETL TOOLS -->
+    <section id="s9">
+      <h2 class="section-title"><span class="st-num">9</span> ETL Tools</h2>
+
+      <p>The ETL tooling landscape spans from enterprise GUI-based products to open-source Python libraries. Choice depends on team skill, integration requirements, budget, and whether you need GUI observability or programmatic control.</p>
+
+      <div class="card-row">
+        <div class="card blue">
+          <h4>Commercial / Paid</h4>
+          <p><strong>StitchData, Talend</strong> — plug-and-play GUI, 100s of pre-built connectors (SaaS, NoSQL, SQL), monitoring dashboards, configurable load schedules.</p>
+        </div>
+        <div class="card teal">
+          <h4>Analytics Platform ETL</h4>
+          <p><strong>Google Data Studio, Tableau</strong> — basic data loading bundled with BI tools; limited integration catalog; sufficient for reporting-only use cases.</p>
+        </div>
+        <div class="card green">
+          <h4>Open-Source Python</h4>
+          <p><strong>Pandas, PETL, PySpark</strong> — programmatic control, free, flexible; require setup and integration work. Best for engineering teams.</p>
+        </div>
+        <div class="card orange">
+          <h4>Apache NiFi (EtL)</h4>
+          <p><strong>NiFi</strong> — GUI-based dataflow routing tool. More "EtL" (small t) — moves and lightly transforms data between systems. Not a full ETL engine.</p>
+        </div>
+      </div>
+
+      <h3>Python ETL Libraries — Comparison</h3>
+      <div class="compare-wrapper">
+        <table class="compare">
+          <tr><th>Library</th><th>Abstraction</th><th>Memory model</th><th>Scale</th><th>Best for</th></tr>
+          <tr><td>Pandas</td><td>DataFrame (columnar in-memory)</td><td>Loads all data into RAM</td><td>Single machine</td><td>Data science, small-to-medium ETL</td></tr>
+          <tr><td>PETL</td><td>Table (lazy, iterator-based)</td><td>Streaming — constant memory</td><td>Single machine</td><td>Low-memory ETL pipelines on large files</td></tr>
+          <tr><td>PySpark</td><td>DataFrame + SQL (distributed)</td><td>Distributed across cluster</td><td>Cluster (100s of nodes)</td><td>Big data ETL at terabyte scale</td></tr>
+        </table>
+      </div>
+
+      <h3>PySpark ETL — Bookings Aggregation</h3>
+      <div class="code-block"><pre><span class="kw">from</span> pyspark.sql <span class="kw">import</span> SparkSession
+<span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> col, count, to_date
+
+spark = <span class="fn">SparkSession</span>.builder \
+    .<span class="fn">appName</span>(<span class="str">"ETL_Pipeline"</span>) \
+    .<span class="fn">getOrCreate</span>()
+
+<span class="cm"># Extract</span>
+bookings = spark.read.<span class="fn">format</span>(<span class="str">"csv"</span>) \
+    .<span class="fn">option</span>(<span class="str">"header"</span>, <span class="str">"true"</span>) \
+    .<span class="fn">load</span>(<span class="str">"hdfs:///raw/bookings/"</span>)
+
+countries = spark.read.<span class="fn">format</span>(<span class="str">"parquet"</span>) \
+    .<span class="fn">load</span>(<span class="str">"hdfs:///ref/countries_code/"</span>)
+
+<span class="cm"># Transform</span>
+result = bookings \
+    .<span class="fn">join</span>(countries, <span class="str">"country_code"</span>) \
+    .<span class="fn">groupBy</span>(<span class="fn">to_date</span>(<span class="str">"created_at"</span>).<span class="fn">alias</span>(<span class="str">"date_d"</span>),
+             <span class="fn">col</span>(<span class="str">"country_name"</span>), <span class="fn">col</span>(<span class="str">"platform"</span>)) \
+    .<span class="fn">agg</span>(<span class="fn">count</span>(<span class="str">"*"</span>).<span class="fn">alias</span>(<span class="str">"total"</span>))
+
+<span class="cm"># Load</span>
+result.write.<span class="fn">format</span>(<span class="str">"parquet"</span>) \
+    .<span class="fn">mode</span>(<span class="str">"overwrite"</span>) \
+    .<span class="fn">save</span>(<span class="str">"hdfs:///warehouse/bookings_daily/"</span>)</pre></div>
+
+      <h3>Pandas ETL — Same Transformation</h3>
+      <div class="code-block"><pre><span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+<span class="cm"># Extract</span>
+bookings  = pd.<span class="fn">read_csv</span>(<span class="str">"bookings.csv"</span>)
+countries = pd.<span class="fn">read_csv</span>(<span class="str">"countries_code.csv"</span>)
+
+<span class="cm"># Transform</span>
+merged = bookings.<span class="fn">merge</span>(countries, on=<span class="str">"country_code"</span>)
+merged[<span class="str">"date_d"</span>] = pd.<span class="fn">to_datetime</span>(merged[<span class="str">"created_at"</span>]).dt.date
+
+result = merged.<span class="fn">groupby</span>([<span class="str">"date_d"</span>, <span class="str">"country_name"</span>, <span class="str">"platform"</span>]) \
+    .<span class="fn">size</span>().<span class="fn">reset_index</span>(name=<span class="str">"total"</span>)
+
+<span class="cm"># Load</span>
+result.<span class="fn">to_sql</span>(<span class="str">"bookings_daily"</span>, con=engine, if_exists=<span class="str">"replace"</span>)</pre></div>
+
+      <h3>Spark Streaming — Word Count (Scala)</h3>
+      <div class="code-block"><pre><span class="kw">val</span> spark = <span class="tp">SparkSession</span>
+  .builder()
+  .<span class="fn">master</span>(<span class="str">"local"</span>)
+  .<span class="fn">appName</span>(<span class="str">"Socket_Streaming"</span>)
+  .<span class="fn">getOrCreate</span>()
+
+<span class="cm">// Initialize Socket Stream — input could also be Kafka, Flume, Kinesis</span>
+<span class="kw">val</span> socketStreamDf = spark.readStream
+  .<span class="fn">format</span>(<span class="str">"socket"</span>)
+  .<span class="fn">option</span>(<span class="str">"host"</span>, <span class="str">"localhost"</span>)
+  .<span class="fn">option</span>(<span class="str">"port"</span>, <span class="nb">4711</span>)
+  .<span class="fn">load</span>()
+
+<span class="kw">val</span> words      = socketStreamDf.as[<span class="tp">String</span>].<span class="fn">flatMap</span>(_.<span class="fn">split</span>(<span class="str">" "</span>))
+<span class="kw">val</span> wordCounts = words.<span class="fn">groupBy</span>(<span class="str">"value"</span>).<span class="fn">count</span>()
+
+<span class="kw">val</span> query = wordCounts.writeStream
+  .<span class="fn">outputMode</span>(<span class="str">"complete"</span>)
+  .<span class="fn">format</span>(<span class="str">"console"</span>)   <span class="cm">// Output could also be HDFS, Kafka, Kinesis</span>
+  .<span class="fn">start</span>()
+
+query.<span class="fn">awaitTermination</span>()</pre></div>
+    </section>
+
+    <!-- SECTION 10: KEY CONCEPTS -->
+    <section id="s10">
+      <h2 class="section-title"><span class="st-num">10</span> Key Concepts</h2>
+
+      <div class="term-grid">
+        <div class="term-card blue">
+          <h4>Batch Processing</h4>
+          <p>Processing large volumes of bounded, historic data at scheduled intervals. Runtime: minutes to days. Re-execution possible.</p>
+        </div>
+        <div class="term-card green">
+          <h4>Stream Processing</h4>
+          <p>Processing unbounded live event streams in real-time or near-real-time. Runtime: milliseconds to seconds. Re-execution generally "impossible".</p>
+        </div>
+        <div class="term-card teal">
+          <h4>ETL</h4>
+          <p>Extract, Transform, Load. Transformation happens on an external staging server; only clean data enters the data warehouse.</p>
+        </div>
+        <div class="term-card purple">
+          <h4>ELT</h4>
+          <p>Extract, Load, Transform. Raw data loaded into the DW first; transformation performed inside the DW using SQL. Enabled by modern cloud DWs.</p>
+        </div>
+        <div class="term-card orange">
+          <h4>Data Lake</h4>
+          <p>Schema-on-read storage for raw data at any scale. Typically Hadoop HDFS or cloud object storage (S3). Stores structured, semi-structured, and unstructured data.</p>
+        </div>
+        <div class="term-card yellow">
+          <h4>Data Warehouse</h4>
+          <p>Schema-on-write store optimized for analytical (OLAP) queries. Contains cleaned, structured data. Examples: Snowflake, BigQuery, Redshift, Hive.</p>
+        </div>
+        <div class="term-card blue">
+          <h4>Data Mart</h4>
+          <p>Subject-specific subset of a data warehouse. Serves a single business domain (e.g. finance, marketing). Example: PostgreSQL-based sales mart.</p>
+        </div>
+        <div class="term-card green">
+          <h4>Lambda Architecture</h4>
+          <p>Dual-pipeline pattern combining a Batch Layer (accurate, slow) and Speed Layer (approximate, fast), merged in a Serving Layer.</p>
+        </div>
+        <div class="term-card teal">
+          <h4>Micro-Batch</h4>
+          <p>Spark's approach to streaming: the stream is sliced into small time windows (e.g. 1 second) and each window is processed as a mini-batch job.</p>
+        </div>
+        <div class="term-card purple">
+          <h4>Message Broker</h4>
+          <p>Middleware that decouples event producers from consumers via named queues/topics. Buffers events for reliability. Example: Apache Kafka.</p>
+        </div>
+        <div class="term-card orange">
+          <h4>Tumbling Window</h4>
+          <p>Fixed-length, non-overlapping time window. Each event belongs to exactly one window. Used for per-period aggregations (e.g. hourly counts).</p>
+        </div>
+        <div class="term-card yellow">
+          <h4>Hopping Window</h4>
+          <p>Fixed-length, overlapping window that advances in fixed steps. An event can belong to multiple windows (window size &gt; hop size).</p>
+        </div>
+        <div class="term-card blue">
+          <h4>Sliding Window</h4>
+          <p>Event-driven window that slides forward on every incoming event. Each window contains at least one event and overlaps with its neighbors.</p>
+        </div>
+        <div class="term-card green">
+          <h4>Session Window</h4>
+          <p>Arbitrary-length window bounded by a gap timeout or explicit start/end events. Useful for modeling user sessions (login → logout).</p>
+        </div>
+        <div class="term-card teal">
+          <h4>Staging Server</h4>
+          <p>In ETL, the intermediate server where data is extracted and transformed before loading into the DW. Keeps raw/sensitive data out of the warehouse.</p>
+        </div>
+        <div class="term-card purple">
+          <h4>Apache Kafka</h4>
+          <p>Distributed append-only event log. Topics are retained durably; consumers track their own offset enabling replay and multiple independent consumers.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 11: GLOSSARY -->
+    <section id="s11">
+      <h2 class="section-title"><span class="st-num">11</span> Glossary</h2>
+
+      <dl class="glossary-grid">
+        <div class="glossary-item">
+          <dt>Apache Flink</dt>
+          <dd>Native stream processing engine. Processes each event as it arrives; treats batch as bounded stream. Millisecond latency.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Apache Kafka</dt>
+          <dd>Distributed event streaming platform. Durable, append-only topic logs. Consumers track offsets independently, enabling replay.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Apache Spark</dt>
+          <dd>Unified analytics engine. Batch-first; emulates streaming via micro-batches. In-memory DAG execution. Rich ML, SQL, and streaming APIs.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Apache Storm</dt>
+          <dd>Low-latency distributed stream processing topology. Precursor to Flink and Spark Streaming for real-time computation.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Batch Layer</dt>
+          <dd>In Lambda Architecture: immutable master data sink that feeds batch processing jobs producing batch views. High latency, high accuracy.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Cassandra</dt>
+          <dd>Wide-column distributed NoSQL store. High write throughput, tunable consistency, no single point of failure. Used for real-time view storage.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Data Acquisition</dt>
+          <dd>Stage where data is ingested from sources into the system. Tools: Sqoop (RDBMS→HDFS), Kafka (streaming), Flume (log streaming).</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Data Lake</dt>
+          <dd>Schema-on-read storage for raw data at any format and scale. Central repository for structured, semi-structured, and unstructured data.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Data Mart</dt>
+          <dd>Subject-specific subset of a data warehouse tailored for a business domain (finance, sales, HR). Smaller scope, faster queries.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Data Warehouse</dt>
+          <dd>Schema-on-write analytical store optimized for OLAP queries. Contains clean, structured, historical data. Examples: Snowflake, Redshift, Hive.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>ELT</dt>
+          <dd>Extract, Load, Transform. Raw data loaded directly into DW; transformation occurs in-place via SQL. No staging server required.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>ETL</dt>
+          <dd>Extract, Transform, Load. Data is cleaned on a staging server before entering the DW. Classic data warehousing pattern.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Event Time</dt>
+          <dd>The timestamp when an event actually occurred (vs. processing time — when it was received). Critical for correct windowed aggregations with late-arriving data.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Hadoop HDFS</dt>
+          <dd>Hadoop Distributed File System. Block-replicated (3×), rack-aware, designed for sequential reads of large files. Foundation of the Hadoop ecosystem.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>HBase</dt>
+          <dd>Wide-column store on top of HDFS. Provides random read/write access to individual cells. Used when HDFS sequential reads are too slow.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Lambda Architecture</dt>
+          <dd>Pattern combining Batch Layer + Speed Layer → Serving Layer. Provides complete, accurate historical views and low-latency recent views simultaneously.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Latency</dt>
+          <dd>Time between an event occurring and its processed result being available. Batch: minutes–days. Stream: milliseconds–seconds.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>MapReduce</dt>
+          <dd>Hadoop's parallel computation model. Map phase applies functions per record; Reduce phase aggregates. Writes intermediate results to disk between stages.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Message Broker</dt>
+          <dd>Middleware that decouples producers from consumers. Buffers events in queues/topics. Enables fan-out (one topic → many consumers).</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Micro-Batch</dt>
+          <dd>Spark Streaming's approach: slice the stream into small time intervals and process each as a mini-batch. Latency = batch interval (typically 0.5–10s).</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>NiFi</dt>
+          <dd>Apache NiFi. GUI-based dataflow tool for routing and moving data between systems with light transformations. "EtL" (small t) rather than full ETL.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>OLAP</dt>
+          <dd>Online Analytical Processing. Query pattern focused on aggregations over large historical datasets. DWs are optimized for OLAP workloads.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Pandas</dt>
+          <dd>Python DataFrame library for in-memory data manipulation. Loads full dataset into RAM. Best for single-machine ETL and data science workflows.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>PETL</dt>
+          <dd>Python ETL library. Table-based, iterator-driven (lazy evaluation). Streams data row-by-row for constant memory use. Good for large file ETL on a single machine.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Producer–Consumer</dt>
+          <dd>Messaging pattern where producers publish events to a broker and consumers subscribe. Decouples systems and enables async processing at scale.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>PySpark</dt>
+          <dd>Python API for Apache Spark. DataFrame and SQL abstractions for distributed ETL and ML. Scales from a laptop to a 1000-node cluster.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Redis</dt>
+          <dd>In-memory key-value store. Sub-millisecond reads/writes. Used for caching aggregated results and session data in streaming pipelines.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Serving Layer</dt>
+          <dd>In Lambda Architecture: the layer that merges batch views and real-time views, exposing a unified query API to applications and analysts.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Sliding Window</dt>
+          <dd>Stream processing window triggered by each event. Fixed duration, overlapping. Every window contains at least one event; slides continuously forward.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Sqoop</dt>
+          <dd>Apache Sqoop. Bulk data transfer tool between RDBMS and Hadoop HDFS. Used in Data Acquisition stage for importing relational tables into the lake.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Speed (Stream) Layer</dt>
+          <dd>In Lambda Architecture: low-latency layer that processes incoming events in real-time, compensating for the batch layer's high latency on recent data.</dd>
+        </div>
+        <div class="glossary-item">
+          <dt>Tumbling Window</dt>
+          <dd>Fixed-length, non-overlapping stream window. Each event belongs to exactly one window. Used for per-period aggregations (e.g. counts per 4 seconds).</dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ PREREQUISITES ═════ -->
+    <section id="prerequisites">
+      <h2 class="section-title"><span class="st-num">⚙</span> Prerequisites</h2>
+
+      <!-- ONE-SHOT SETUP BOX -->
+      <div style="background:var(--green-light);border:2px solid var(--green);border-radius:12px;padding:1.6rem 1.8rem;margin-bottom:1.5rem">
+        <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.8rem">
+          <span style="background:var(--green);color:#fff;border-radius:6px;padding:.2rem .75rem;font-size:.78rem;font-weight:700">ONE-SHOT SETUP</span>
+          <span style="font-size:1.1rem;font-weight:700;color:var(--text)">3 commands — that's all</span>
+        </div>
+        <p style="font-size:.88rem;color:#333;margin-bottom:1rem">Copy the setup script to your Ubuntu VM, run it, then activate the virtual environment. Everything — package installation, sample data, and all Python lab scripts — is handled automatically.</p>
+        <div class="verify-block" style="margin:0">
+          <span class="vb-label">Terminal — Ubuntu 22.04 VM</span><br>
+          <span class="vb-comment"># Step 1 — copy the setup script to your VM (URL/path provided by your lecturer)</span><br>
+          <span class="vb-cmd">scp data_processing_setup.sh student@&lt;VM_IP&gt;:~/</span><br>
+          <span class="vb-comment">#   ...or if you are already on the VM:</span><br>
+          <span class="vb-cmd">bash data_processing_setup.sh</span><br>
+          <br>
+          <span class="vb-comment"># Step 2 — activate the Python virtual environment (once per terminal session)</span><br>
+          <span class="vb-cmd">source ~/data-processing-lab/venv/bin/activate</span><br>
+          <span class="vb-out">(venv) student@ubuntu:~$</span><br>
+          <br>
+          <span class="vb-comment"># Step 3 — move into the lab folder</span><br>
+          <span class="vb-cmd">cd ~/data-processing-lab/</span><br>
+          <span class="vb-out">(venv) student@ubuntu:~/data-processing-lab$</span>
+        </div>
+        <div style="margin-top:1rem;padding:.9rem 1.1rem;background:#fff;border-radius:8px;border:1px solid #b7dfca">
+          <p style="font-size:.87rem;color:#333;margin:0"><strong>After the script finishes</strong>, it automatically runs the verification check. You should see:<br>
+          <code style="font-size:.83rem">All checks passed — ready for the lab!</code><br>
+          Then follow Steps 2–3 above. If any package shows <strong>MISSING</strong>, re-run the setup script after ensuring internet connectivity.</p>
+        </div>
+      </div>
+
+      <!-- lab.sh GUIDE -->
+      <div style="background:#eef2ff;border:2px solid #818cf8;border-radius:12px;padding:1.4rem 1.8rem;margin-bottom:1.5rem">
+        <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.8rem">
+          <span style="background:#818cf8;color:#fff;border-radius:6px;padding:.2rem .75rem;font-size:.78rem;font-weight:700">RUNNING THE LAB</span>
+          <span style="font-size:1.1rem;font-weight:700;color:var(--text)">Use <code>lab.sh</code> to run any phase</span>
+        </div>
+        <p style="font-size:.88rem;color:#333;margin-bottom:.9rem">The setup script creates <code>~/data-processing-lab/lab.sh</code> — a one-line helper that activates the virtual environment and runs the specified script automatically.</p>
+        <div class="verify-block" style="margin:0">
+          <span class="vb-label">Usage — from ~/data-processing-lab/</span><br>
+          <span class="vb-comment"># Syntax: bash lab.sh &lt;script.py&gt;</span><br>
+          <span class="vb-cmd">bash lab.sh check_setup.py</span><br>
+          <span class="vb-cmd">bash lab.sh phase2_batch_etl.py</span><br>
+          <span class="vb-cmd">bash lab.sh phase3_stream_windows.py</span><br>
+          <span class="vb-cmd">bash lab.sh phase4_elt.py</span><br>
+          <span class="vb-cmd">bash lab.sh data_processing_lab.py</span>
+        </div>
+      </div>
+
+      <!-- PREREQ 1: Verify VM -->
+      <div class="phase-card">
+        <div class="phase-header">
+          <div class="phase-num prereq">1</div>
+          <div>
+            <div class="phase-title">Verify Your Linux VM is Running</div>
+            <div class="phase-subtitle">Confirm OS, Python version, and that SQLite is available</div>
+          </div>
+        </div>
+        <div class="verify-block">
+          <span class="vb-label">Terminal — VM Checks</span><br>
+          <span class="vb-comment"># 1. Confirm you are on Linux (Ubuntu 22.04)</span><br>
+          <span class="vb-cmd">uname -a</span><br>
+          <span class="vb-out">Linux ubuntu 5.15.0-91-generic ... x86_64 GNU/Linux</span><br>
+          <br>
+          <span class="vb-comment"># 2. Check Python — must be 3.8 or higher</span><br>
+          <span class="vb-cmd">python3 --version</span><br>
+          <span class="vb-out">Python 3.10.12</span><br>
+          <br>
+          <span class="vb-comment"># 3. SQLite — built into Ubuntu, should already be present</span><br>
+          <span class="vb-cmd">sqlite3 --version</span><br>
+          <span class="vb-out">3.37.2 2022-01-06 ...</span>
+        </div>
+      </div>
+
+      <!-- PREREQ 2: Run setup script -->
+      <div class="phase-card">
+        <div class="phase-header">
+          <div class="phase-num prereq">2</div>
+          <div>
+            <div class="phase-title">Run the Setup Script</div>
+            <div class="phase-subtitle">Installs pandas + petl, creates the venv, generates sample data, writes all lab scripts</div>
+          </div>
+        </div>
+        <div class="verify-block">
+          <span class="vb-label">Terminal — run once</span><br>
+          <span class="vb-cmd">bash data_processing_setup.sh</span><br>
+          <span class="vb-out">...</span><br>
+          <span class="vb-out">  ✓ pandas, petl installed</span><br>
+          <span class="vb-out">  ✓ Sample data ready (100 bookings, 10 countries, 60 stream events)</span><br>
+          <span class="vb-out">  ✓ Lab scripts written (5 files)</span><br>
+          <span class="vb-out">All checks passed — ready for the lab!</span>
+        </div>
+        <div class="callout green" style="margin-top:.6rem">
+          <strong>What the script creates in <code>~/data-processing-lab/</code>:</strong>
+          <ul style="margin:.4rem 0 0 1.2rem;font-size:.87rem">
+            <li><code>venv/</code> — Python virtual environment with pandas + petl</li>
+            <li><code>bookings.csv</code>, <code>countries_code.csv</code>, <code>stream_events.csv</code> — sample datasets</li>
+            <li><code>check_setup.py</code> · <code>phase2_batch_etl.py</code> · <code>phase3_stream_windows.py</code> · <code>phase4_elt.py</code> · <code>data_processing_lab.py</code></li>
+            <li><code>lab.sh</code> — convenience runner (activates venv + runs your script)</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- PREREQ 3: Verify installations -->
+      <div class="phase-card">
+        <div class="phase-header">
+          <div class="phase-num prereq">3</div>
+          <div>
+            <div class="phase-title">Verify All Installations</div>
+            <div class="phase-subtitle">Every line must print OK — if any show MISSING, troubleshoot before continuing</div>
+          </div>
+        </div>
+        <p style="font-size:.88rem;color:#444;margin-bottom:.6rem">With the venv active and inside <code>~/data-processing-lab/</code>:</p>
+        <div class="verify-block">
+          <span class="vb-label">Terminal</span><br>
+          <span class="vb-cmd">python3 check_setup.py</span><br>
+          <span class="vb-out">Python: 3.10.12 ...</span><br>
+          <span class="vb-out">  pandas               OK</span><br>
+          <span class="vb-out">  petl                 OK</span><br>
+          <span class="vb-out">  sqlite3              OK</span><br>
+          <span class="vb-out">  bookings.csv         OK</span><br>
+          <span class="vb-out">  countries_code.csv   OK</span><br>
+          <span class="vb-out">  stream_events.csv    OK</span><br>
+          <br>
+          <span class="vb-out">All checks passed — ready for the lab!</span>
+        </div>
+        <div class="callout yellow" style="margin-top:.6rem">
+          <strong>Seeing MISSING?</strong> Activate the venv first (<code>source ~/data-processing-lab/venv/bin/activate</code>), then re-run <code>bash data_processing_setup.sh</code> to reinstall.
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ HANDS-ON LAB ══════ -->
+    <section id="hands-on-lab">
+      <h2 class="section-title"><span class="st-num">🧪</span> Hands-On Lab</h2>
+
+      <div class="callout blue">
+        <strong>Assignment:</strong>
+        <p style="margin:.4rem 0 0">Build a complete data-processing pipeline covering three patterns from the lecture: <strong>Batch ETL</strong> (Pandas), <strong>Stream Processing</strong> (windowing simulation), and <strong>ELT</strong> (SQL transformations inside SQLite). Run all phases in order, then run the final deliverable script to see all three patterns combined into one pipeline.</p>
+      </div>
+
+      <!-- PHASE 2 — BATCH ETL -->
+      <div class="phase-card" id="lab-phase2">
+        <div class="phase-header">
+          <div class="phase-num">2</div>
+          <div>
+            <div class="phase-title">Phase 2 — Batch ETL with Pandas</div>
+            <div class="phase-subtitle">Slides 5, 20, 24 · Extract → Transform on staging → Load only clean data into SQLite</div>
+          </div>
+        </div>
+        <p style="font-size:.88rem;color:#444;margin-bottom:.8rem">Classic ETL: Pandas reads two CSV files, joins and aggregates them in-memory ("on a staging server"), and loads only the clean, transformed result into an SQLite data warehouse. The raw <code>bookings.csv</code> never enters the DW directly — that is the defining ETL rule.</p>
+        <div class="verify-block">
+          <span class="vb-label">Run Phase 2</span><br>
+          <span class="vb-cmd">python3 phase2_batch_etl.py</span><br>
+          <span class="vb-out">[1/3] EXTRACT — reading source CSV files...</span><br>
+          <span class="vb-out">  bookings.csv:        100 rows</span><br>
+          <span class="vb-out">  countries_code.csv:   10 rows</span><br>
+          <span class="vb-out">[2/3] TRANSFORM — joining tables, aggregating by country + date...</span><br>
+          <span class="vb-out">  (This happens on a staging server, NOT inside the warehouse)</span><br>
+          <span class="vb-out">  Result: ~35 rows in bookings_daily</span><br>
+          <span class="vb-out">[3/3] LOAD — writing to warehouse (SQLite)...</span><br>
+          <span class="vb-out">  bookings_daily.csv  → saved</span><br>
+          <span class="vb-out">  warehouse.db        → table 'bookings_daily' loaded</span>
+        </div>
+        <div class="expected-box">
+          <div class="eb-label">What to verify</div>
+          <code>warehouse.db</code> now exists in <code>~/data-processing-lab/</code>. Run <code>sqlite3 warehouse.db 'SELECT COUNT(*) FROM bookings_daily;'</code> — should return the row count. The raw <code>bookings.csv</code> was <strong>not</strong> loaded into the DW; only the aggregated result was (the fundamental ETL guarantee).
+        </div>
+      </div>
+
+      <!-- PHASE 3 — STREAM WINDOWS -->
+      <div class="phase-card" id="lab-phase3">
+        <div class="phase-header">
+          <div class="phase-num">3</div>
+          <div>
+            <div class="phase-title">Phase 3 — Stream Processing: Window Types</div>
+            <div class="phase-subtitle">Slides 9–13 · Same stream, three different windows — Tumbling, Hopping, Session</div>
+          </div>
+        </div>
+        <p style="font-size:.88rem;color:#444;margin-bottom:.8rem">The same 60-event stream is processed through all three window types. Watch how the same data produces different aggregation results depending on the window strategy — this is the core tradeoff covered in the lecture slides on stream windowing.</p>
+        <div class="verify-block">
+          <span class="vb-label">Run Phase 3</span><br>
+          <span class="vb-cmd">python3 phase3_stream_windows.py</span><br>
+          <span class="vb-out">Stream contains 60 events (simulated 0–59 seconds)</span><br>
+          <span class="vb-out">Replaying stream (fast-forward)...</span><br>
+          <span class="vb-out">  t= 0s  user=7  page_view   €0</span><br>
+          <span class="vb-out">  ...</span><br>
+          <span class="vb-out"></span><br>
+          <span class="vb-out">TUMBLING WINDOW  (size=10s, non-overlapping)</span><br>
+          <span class="vb-out">  Window [ 0s– 9s):  10 events  |  1 purchase  |  €120 revenue</span><br>
+          <span class="vb-out">  Window [10s–19s):  10 events  |  ...</span><br>
+          <span class="vb-out"></span><br>
+          <span class="vb-out">HOPPING WINDOW   (size=10s, hop=5s, overlapping)</span><br>
+          <span class="vb-out">  Window [ 0s–10s):  10 events  |  ...</span><br>
+          <span class="vb-out"></span><br>
+          <span class="vb-out">SESSION WINDOW   (5s inactivity gap)</span><br>
+          <span class="vb-out">  Session  1 [ 0s–...]</span>
+        </div>
+        <div class="expected-box">
+          <div class="eb-label">What to verify</div>
+          <strong>Tumbling:</strong> Windows are non-overlapping — event counts across all windows sum to exactly 60.<br>
+          <strong>Hopping:</strong> Windows overlap — event counts sum to <em>more</em> than 60 (events appear in multiple windows).<br>
+          <strong>Session:</strong> Window lengths vary depending on inactivity gaps, not a fixed interval.
+        </div>
+      </div>
+
+      <!-- PHASE 4 — ELT -->
+      <div class="phase-card" id="lab-phase4">
+        <div class="phase-header">
+          <div class="phase-num">4</div>
+          <div>
+            <div class="phase-title">Phase 4 — ELT Pipeline (SQL inside the Warehouse)</div>
+            <div class="phase-subtitle">Slides 21–23 · Load raw data first → transform with SQL — no staging server needed</div>
+          </div>
+        </div>
+        <p style="font-size:.88rem;color:#444;margin-bottom:.8rem">Same data as Phase 2, but ELT: raw CSV is loaded directly into SQLite (untransformed), then reshaped in-place using SQL queries. The script then compares ETL vs. ELT totals side-by-side — proving they produce identical results through fundamentally different approaches.</p>
+        <div class="verify-block">
+          <span class="vb-label">Run Phase 4</span><br>
+          <span class="vb-cmd">python3 phase4_elt.py</span><br>
+          <span class="vb-out">[1/3] EXTRACT + LOAD RAW — loading directly into warehouse (no staging)...</span><br>
+          <span class="vb-out">  raw_bookings   → 100 rows loaded (untransformed!)</span><br>
+          <span class="vb-out">  raw_countries  → 10 rows loaded</span><br>
+          <span class="vb-out">[2/3] TRANSFORM inside warehouse using SQL...</span><br>
+          <span class="vb-out">[3/3] VERIFY — comparing ETL vs ELT output...</span><br>
+          <span class="vb-out">  ETL total bookings: 100</span><br>
+          <span class="vb-out">  ELT total bookings: 100</span><br>
+          <span class="vb-out">  Result comparison:  ✓ MATCH</span>
+        </div>
+        <div class="expected-box">
+          <div class="eb-label">What to verify</div>
+          The comparison table shows the key ETL vs. ELT differences: <strong>where</strong> transformation happens (staging server vs. inside the DW), <strong>who</strong> writes the transform (data engineer vs. analyst), and GDPR implications. Both approaches produce the same final row count — the difference is <em>when and where</em> the data is transformed.
+        </div>
+      </div>
+
+      <!-- FINAL DELIVERABLE -->
+      <div class="phase-card" id="lab-final">
+        <div class="phase-header">
+          <div class="phase-num done">✓</div>
+          <div>
+            <div class="phase-title">Final Deliverable — Complete Data Processing Pipeline</div>
+            <div class="phase-subtitle">Run all three parts in one script · produces bookings_daily.csv and lab_warehouse.db</div>
+          </div>
+        </div>
+        <p style="font-size:.88rem;color:#444;margin-bottom:.8rem"><code>data_processing_lab.py</code> combines all three patterns: Batch ETL, Stream Windows (Tumbling), and ELT comparison into a single runnable pipeline. Submit this script along with the two output files it creates.</p>
+        <div class="verify-block">
+          <span class="vb-label">Run final deliverable</span><br>
+          <span class="vb-cmd">python3 data_processing_lab.py</span><br>
+          <span class="vb-out">PART 1: BATCH ETL PIPELINE (Pandas)</span><br>
+          <span class="vb-out">  Extracted  : 100 bookings, 10 countries</span><br>
+          <span class="vb-out">  Transformed: joined + aggregated by country + date</span><br>
+          <span class="vb-out">  Loaded     : bookings_daily.csv saved</span><br>
+          <span class="vb-out">PART 2: STREAM PROCESSING — TUMBLING WINDOWS (10s)</span><br>
+          <span class="vb-out">  Processed 60 stream events across 6 non-overlapping windows</span><br>
+          <span class="vb-out">PART 3: ELT PIPELINE (SQL transformations inside SQLite DW)</span><br>
+          <span class="vb-out">  Match      : ✓ Both approaches yield the same result</span><br>
+          <span class="vb-out">LAB COMPLETE — Output files:</span><br>
+          <span class="vb-out">  bookings_daily.csv   ... bytes</span><br>
+          <span class="vb-out">  lab_warehouse.db     ... bytes</span>
+        </div>
+        <div class="callout green" style="margin-top:.6rem">
+          <strong>Bonus — explore the SQLite warehouse directly:</strong>
+          <div class="verify-block" style="margin:.5rem 0 0;background:#1a1a2a">
+            <span class="vb-comment"># List all tables in the warehouse</span><br>
+            <span class="vb-cmd">sqlite3 lab_warehouse.db '.tables'</span><br>
+            <span class="vb-out">bookings_daily_elt  raw_bookings  raw_countries</span><br>
+            <br>
+            <span class="vb-comment"># Top 5 countries by booking volume</span><br>
+            <span class="vb-cmd">sqlite3 lab_warehouse.db \</span><br>
+            <span class="vb-cmd">  'SELECT country_name, SUM(total) AS bookings FROM bookings_daily_elt GROUP BY country_name ORDER BY bookings DESC LIMIT 5;'</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- LAB SUMMARY TABLE -->
+      <h3 style="margin-top:2rem;margin-bottom:.8rem">Lab Summary</h3>
+      <div class="compare-wrapper">
+        <table class="lab-summary-table">
+          <thead>
+            <tr>
+              <th>Script</th>
+              <th>Concept</th>
+              <th>Key operation</th>
+              <th>Lecture slides</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>check_setup.py</code></td>
+              <td>Environment verification</td>
+              <td>Checks pandas, petl, sqlite3 and all three CSV data files</td>
+              <td><span class="lab-summary-table slide-ref">Setup</span></td>
+            </tr>
+            <tr>
+              <td><code>phase2_batch_etl.py</code></td>
+              <td><strong>Batch Processing — ETL</strong></td>
+              <td>Pandas: read CSV → join + aggregate → load into SQLite DW</td>
+              <td><span class="lab-summary-table slide-ref">Slides 5, 20, 24</span></td>
+            </tr>
+            <tr>
+              <td><code>phase3_stream_windows.py</code></td>
+              <td><strong>Stream Processing — Windows</strong></td>
+              <td>Tumbling, Hopping &amp; Session windows over a 60-event replay</td>
+              <td><span class="lab-summary-table slide-ref">Slides 9–13</span></td>
+            </tr>
+            <tr>
+              <td><code>phase4_elt.py</code></td>
+              <td><strong>ELT Pipeline</strong></td>
+              <td>Load raw → SQL transform inside SQLite → ETL vs. ELT comparison</td>
+              <td><span class="lab-summary-table slide-ref">Slides 21–23</span></td>
+            </tr>
+            <tr>
+              <td><code>data_processing_lab.py</code></td>
+              <td><strong>Full Pipeline (deliverable)</strong></td>
+              <td>All three patterns combined; saves bookings_daily.csv + lab_warehouse.db</td>
+              <td><span class="lab-summary-table slide-ref">Slides 5–26</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <strong>SRH Hochschule Heidelberg</strong> · Data Engineering 1 · Data Processing · Prof. Dr.-Ing. Binh Vu
+</footer>
+
+<script>
+// ===================== SIDEBAR INTERSECTION OBSERVER =====================
+(function(){
+  const links = document.querySelectorAll('.sidebar nav a');
+  const sections = document.querySelectorAll('main section[id]');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(e.isIntersecting){
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector('.sidebar nav a[href="#'+e.target.id+'"]');
+        if(a) a.classList.add('active');
+      }
+    });
+  },{threshold:0.25});
+  sections.forEach(s => obs.observe(s));
+})();
+
+// ===================== PIPELINE DIAGRAM =====================
+const PIPE_STEPS = [
+  { label: "Data Sources", color: "#1a4f8a",
+    desc: "<strong>Data Sources:</strong> Raw data originates from structured sources (ERP, CRM, OLAP, spreadsheets) and unstructured sources (social media, IoT sensors, web logs, documents). Each source has its own schema, format, and update frequency." },
+  { label: "Data Acquisition", color: "#0d6e6e",
+    desc: "<strong>Data Acquisition:</strong> Data is ingested from sources using tools like ETL pipelines, Apache Sqoop (RDBMS→Hadoop bulk import), Apache Kafka (streaming events), or Apache Flume (log file streaming). This stage handles connectivity, rate control, and format normalization." },
+  { label: "Data Storage", color: "#1b6b3a",
+    desc: "<strong>Data Storage:</strong> Ingested data lands in distributed storage: Hadoop HDFS (batch, sequential reads), Apache Cassandra (wide-column, low-latency writes), HBase (random access on HDFS), or Redis (in-memory caching). Schema-on-read allows storing raw data without upfront schema definition." },
+  { label: "Data Analysis", color: "#5b2d8e",
+    desc: "<strong>Data Analysis:</strong> Analytical workloads run over stored data: Apache Hive (SQL-on-HDFS, batch), Apache Spark (in-memory distributed computing), Cloudera Impala (interactive SQL). Outputs include aggregations, ML models, feature tables, and reports." },
+  { label: "Reporting & Viz", color: "#c8390a",
+    desc: "<strong>Reporting &amp; Visualization:</strong> Results are served to business users through BI tools (Tableau, Power BI, Google Data Studio), custom dashboards, or REST APIs. This layer translates analytical output into decisions." }
+];
+
+let pipeIdx = -1;
+function pipeApply(idx){
+  pipeIdx = idx;
+  const boxes = document.querySelectorAll('.pipe-box');
+  boxes.forEach((b,i) => {
+    if(i === idx){
+      b.classList.add('active'); b.classList.remove('inactive');
+    } else {
+      b.classList.remove('active'); b.classList.add('inactive');
+    }
+  });
+  const btns = document.querySelectorAll('#pipeCtrl .diag-btn:not(.nav-btn)');
+  btns.forEach((b,i) => b.classList.toggle('active', i===idx));
+  document.getElementById('pipeDesc').innerHTML = PIPE_STEPS[idx].desc;
+}
+function pipeNav(dir){
+  let next = pipeIdx + dir;
+  if(next < 0) next = PIPE_STEPS.length - 1;
+  if(next >= PIPE_STEPS.length) next = 0;
+  pipeApply(next);
+}
+pipeApply(0);
+
+// ===================== ETL/ELT TOGGLE =====================
+function switchMode(mode){
+  document.getElementById('etlDiagram').style.display = mode==='etl' ? 'block' : 'none';
+  document.getElementById('eltDiagram').style.display = mode==='elt' ? 'block' : 'none';
+  document.getElementById('etlBtn').classList.toggle('active', mode==='etl');
+  document.getElementById('eltBtn').classList.toggle('active', mode==='elt');
+}
+
+// ===================== STREAM WINDOW DIAGRAM =====================
+const STREAM = [5,2,9,4,1,6,0,9,5,2,7,3,9,5,2];
+const WINDOW_TYPES = {
+  tumbling: {
+    color: "#e53e3e",
+    title: "Tumbling Window",
+    props: ["Fixed length (non-overlapping)", "Each event belongs to exactly one window", "No overlap between consecutive windows"],
+    sql: `SELECT Count(*) AS tweet_count\nFROM Twitter_Stream TIMESTAMP BY CreationTime\nGROUP BY TumblingWindow(second, 4)`,
+    brackets: [[0,3],[4,7],[8,11],[12,14]]
+  },
+  hopping: {
+    color: "#d69e2e",
+    title: "Hopping Window",
+    props: ["Fixed length with fixed-step overlap", "Events can relate to more than one window", "Window size > hop size creates overlap"],
+    sql: `SELECT Count(*) AS tweet_count\nFROM Twitter_Stream TIMESTAMP BY CreationTime\nGROUP BY HoppingWindow(second, 4, 3)`,
+    brackets: [[0,3],[3,6],[6,9],[9,12],[12,14]]
+  },
+  sliding: {
+    color: "#38a169",
+    title: "Sliding Window",
+    props: ["Fixed length, event-driven overlap", "Every window contains at least one event", "Continuously slides forward on each arriving event"],
+    sql: `SELECT HashTag, Count(*) AS tweet_count\nFROM Twitter_Stream TIMESTAMP BY CreationTime\nGROUP BY Hashtag, SlidingWindow(second, 4)\nHAVING Count(*) > 10`,
+    brackets: [[0,2],[1,3],[2,4],[3,5],[4,6],[5,7],[6,9],[7,10],[8,11],[9,12],[10,13],[11,14]]
+  },
+  session: {
+    color: "#3182ce",
+    title: "Session Window",
+    props: ["Arbitrary length based on activity gap", "Defined by timeout between events", "Start: first event; End: timeout or explicit end event", "Empty windows filtered out"],
+    sql: `SELECT HashTag, Count(*) AS tweet_count\nFROM Twitter_Stream TIMESTAMP BY CreationTime\nGROUP BY Hashtag, SessionWindow(minute, 5)`,
+    brackets: [[0,2],[4,5],[7,10],[12,14]]
+  }
+};
+
+(function buildStream(){
+  const row = document.getElementById('streamRow');
+  STREAM.forEach((v,i) => {
+    const c = document.createElement('div');
+    c.className = 'stream-cell';
+    c.id = 'sc'+i;
+    c.textContent = v;
+    row.appendChild(c);
+    if(i < STREAM.length-1){
+      const sp = document.createElement('div');
+      sp.style.cssText = 'width:4px;flex-shrink:0';
+      row.appendChild(sp);
+    }
+  });
+})();
+
+let currentWinType = 'tumbling';
+function winSelect(type, btn){
+  currentWinType = type;
+  document.querySelectorAll('#s3 .diag-btn').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderBrackets(type);
+}
+
+function renderBrackets(type){
+  const cfg = WINDOW_TYPES[type];
+  const row = document.getElementById('streamRow');
+
+  // Remove old brackets
+  row.querySelectorAll('.bracket').forEach(b => b.remove());
+
+  const cells = row.querySelectorAll('.stream-cell');
+  const rowRect = row.getBoundingClientRect();
+  const levels = assignLevels(cfg.brackets);
+
+  cfg.brackets.forEach((br, bi) => {
+    const [start, end] = br;
+    const startCell = cells[start];
+    const endCell = cells[end];
+    if(!startCell || !endCell) return;
+
+    const startLeft = startCell.offsetLeft;
+    const endRight = endCell.offsetLeft + endCell.offsetWidth;
+    const level = levels[bi];
+    const topOffset = -(level * 20 + 20);
+
+    const div = document.createElement('div');
+    div.className = 'bracket';
+    div.style.cssText = `
+      left: ${startLeft}px;
+      width: ${endRight - startLeft}px;
+      top: ${row.offsetHeight + topOffset - 10}px;
+      border-color: ${cfg.color};
+      height: 14px;
+    `;
+    row.appendChild(div);
+  });
+
+  const desc = document.getElementById('winDesc');
+  const propsHtml = cfg.props.map(p =>
+    `<span class="window-prop" style="border-color:${cfg.color};color:${cfg.color};background:${cfg.color}18">${p}</span>`
+  ).join('');
+  desc.innerHTML = `
+    <strong style="color:${cfg.color}">${cfg.title}</strong>
+    <div class="window-props">${propsHtml}</div>
+    <div class="sql-block">${cfg.sql}</div>
+  `;
+}
+
+function assignLevels(brackets){
+  const levels = new Array(brackets.length).fill(0);
+  for(let i=0;i<brackets.length;i++){
+    for(let j=0;j<i;j++){
+      if(brackets[j][1] >= brackets[i][0] && brackets[j][0] <= brackets[i][1]){
+        levels[i] = Math.max(levels[i], levels[j]+1);
+      }
+    }
+  }
+  return levels;
+}
+
+// Init stream diagram
+window.addEventListener('load', () => winSelect('tumbling', document.querySelector('#s3 .diag-btn')));
+// Also run immediately in case load already fired
+winSelect('tumbling', document.querySelector('#s3 .diag-btn'));
+</script>
+</body>
+</html>
