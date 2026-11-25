@@ -1037,12 +1037,12 @@ query.<span class="fn">awaitTermination</span>()</pre></div>
           <span style="background:var(--green);color:#fff;border-radius:6px;padding:.2rem .75rem;font-size:.78rem;font-weight:700">ONE-SHOT SETUP</span>
           <span style="font-size:1.1rem;font-weight:700;color:var(--text)">3 commands — that's all</span>
         </div>
-        <p style="font-size:.88rem;color:#333;margin-bottom:1rem">Copy the setup script to your Ubuntu VM, run it, then activate the virtual environment. Everything — package installation, sample data, and all Python lab scripts — is handled automatically.</p>
+        <p style="font-size:.88rem;color:#333;margin-bottom:1rem">Clone the repository on your Ubuntu VM, run the setup script, then activate the virtual environment. Everything — package installation, sample data, and all Python lab scripts — is handled automatically.</p>
         <div class="verify-block" style="margin:0">
           <span class="vb-label">Terminal — Ubuntu 22.04 VM</span><br>
-          <span class="vb-comment"># Step 1 — copy the setup script to your VM (URL/path provided by your lecturer)</span><br>
-          <span class="vb-cmd">scp data_processing_setup.sh student@&lt;VM_IP&gt;:~/</span><br>
-          <span class="vb-comment">#   ...or if you are already on the VM:</span><br>
+          <span class="vb-comment"># Step 1 — clone the lab repository onto your VM</span><br>
+          <span class="vb-cmd">git clone https://github.com/srh-data-engineering/data-processing</span><br>
+          <span class="vb-cmd">cd data-processing</span><br>
           <span class="vb-cmd">bash data_processing_setup.sh</span><br>
           <br>
           <span class="vb-comment"># Step 2 — activate the Python virtual environment (once per terminal session)</span><br>
